@@ -3,13 +3,12 @@
 
 #### Ansible Demonstration using Docker-Compose for the environment  
 
-* Generate ssh keypair for Ansible User:
+* Generate local ssh keypair for Ansible User:
 
     ```bash
-    brew install yarn (if you are using nvm please add the command line option --ignore-dependencies otherwise you could get surprises)
-    brew install node 
-    brew install watchman 
-    
+    ssh-keygen -t rsa -f ansible
+    copy keypair to env/ folder from repo **
+    ** note this is just for demonstration purposes. The Docker Images will be built with the keypair included. This is never done in the real world.    
     # react native cli
     npm install react-native-cli -g
     ```
