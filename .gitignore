@@ -1,0 +1,10 @@
+.idea
+.DS_STORE
+*.fdf
+*.suo
+*.user
+bin/
+obj/
+Publish/
+env/ansiblepriv.pub
+env/ansiblepriv
