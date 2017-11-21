@@ -15,4 +15,5 @@
     
 ### Shell access to the containers
 * substitute your private key for 'privkey' and port for the appropriate container
-```ssh -o StrictHostKeyChecking=no -v -p 222x -i ~/.ssh/xxxx ansible@localhost```
+
+	```ssh -o StrictHostKeyChecking=no -v -p 222x -i ~/.ssh/xxxx ansible@localhost```
