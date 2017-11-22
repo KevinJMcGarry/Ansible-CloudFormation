@@ -27,7 +27,8 @@ COPY ansiblepriv.pub /home/ansible/.ssh/authorized_keys
 RUN chown -R ansible:ansible /home/ansible/
 RUN echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ansible
 
-RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N '' 
+# generate host keys that do not exist
+RUN ssh-keygen -A 
 
 # EXPOSE 22
 ENTRYPOINT ["/usr/sbin/sshd", "-D"]
