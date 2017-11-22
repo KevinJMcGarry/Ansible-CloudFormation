@@ -19,6 +19,7 @@ RUN chmod 0700 /home/ansible/.ssh/
 COPY ssh_config /home/ansible/.ssh/config
 
 ### This is just for testing purposes. Keys never go in repos!!! ###
+# ---------------------------------------------------------------- #
 COPY ansiblepriv /home/ansible/.ssh/id_rsa
 COPY ansiblepriv.pub /home/ansible/.ssh/id_rsa.pub
 COPY ansiblepriv.pub /home/ansible/.ssh/authorized_keys
@@ -30,5 +31,3 @@ RUN ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key -N ''
 
 # EXPOSE 22
 ENTRYPOINT ["/usr/sbin/sshd", "-D"]
-
-# ssh -o StrictHostKeyChecking=no -v -p 2222 -i ~/.ssh/ansiblepriv ansible@localhost

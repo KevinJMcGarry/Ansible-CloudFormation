@@ -6,11 +6,12 @@
 * Generate local ssh keypair for Ansible User:
 
     ```bash
-    ssh-keygen -t rsa -f ansible
+    ssh-keygen -t rsa -f ansible```
+    
+    
     copy keypair to env/ folder from repo **
+    
     ** note this is just for demonstration purposes. The Docker Images will be built with the keypair included. This is never done in the real world.    
-    # react native cli
-    npm install react-native-cli -g
     ```
     
 ### Shell access to the containers
