@@ -19,7 +19,7 @@ RUN chmod 0700 /home/ansible/.ssh/
 COPY ssh_config /home/ansible/.ssh/config
 
 ### This is just for testing purposes. Keys never go in repos - even if you .gitignore them!!! ###
-# ---------------------------------------------------------------- #
+# ---------------------------------------------------------------------------------------------- #
 COPY ansiblepriv /home/ansible/.ssh/id_rsa
 COPY ansiblepriv.pub /home/ansible/.ssh/id_rsa.pub
 COPY ansiblepriv.pub /home/ansible/.ssh/authorized_keys
@@ -34,7 +34,7 @@ RUN ssh-keygen -A
 RUN yum install yum-utils -y && yum groupinstall development -y
 RUN yum install https://centos7.iuscommunity.org/ius-release.rpm -y && yum install python36u -y
 RUN ln -s /usr/bin/python3.6 /usr/bin/python3
-RUN yum install which -y
+RUN yum install which vim -y
 
 # Switch user to Ansible and install Ansible 2.4.x
 USER ansible
@@ -42,6 +42,9 @@ RUN sudo yum install ansible -y
 
 # Switch user back to root to run sshd
 USER root
+
+# Copy hosts file
+COPY hosts /etc/ansible/
 
 # EXPOSE 22
 ENTRYPOINT ["/usr/sbin/sshd", "-D"]
