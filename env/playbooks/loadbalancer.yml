@@ -1,0 +1,7 @@
+---
+  - hosts: loadbalancers  # specify the group to target
+    become: true  # instructs ansible to use the sudo command when executing tasks
+    tasks:
+       - name: install nginx  # supplying the custom name for the task to run
+         yum: name=nginx state=present update_cache=yes  # http://docs.ansible.com/ansible/latest/yum_module.html
+         # state is important as the option you choose will dictate if the package is upgraded when new version released

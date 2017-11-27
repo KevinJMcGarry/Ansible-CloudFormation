@@ -45,6 +45,7 @@ USER root
 
 # Copy hosts file
 COPY hosts /etc/ansible/
+COPY /playbooks/ /etc/ansible/playbooks/
 
 # EXPOSE 22
 ENTRYPOINT ["/usr/sbin/sshd", "-D"]

@@ -1,11 +1,11 @@
-[loadbalancer]
+[loadbalancers]
 lb01
 
-[webserver]
+[webservers]
 app01
 app02
 
-[database]
+[databases]
 db01
 
 [control]
