@@ -9,21 +9,7 @@ MAINTAINER Kevin McGarry <kevinjmcgarry@gmail.com>
 
 RUN yum -y update && yum clean all
 RUN yum -y install sudo openssh-server passwd && yum clean all
-RUN yum -y install initscripts && yum clean all  # install initscripts to be able to use service command
 RUN mkdir /var/run/sshd
-
-ENV container=docker
-
-RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i == systemd-tmpfiles-setup.service ] || rm -f $i; done); \
-rm -f /lib/systemd/system/multi-user.target.wants/*;\
-rm -f /etc/systemd/system/*.wants/*;\
-rm -f /lib/systemd/system/local-fs.target.wants/*; \
-rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
-rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
-rm -f /lib/systemd/system/basic.target.wants/*;\
-rm -f /lib/systemd/system/anaconda.target.wants/*;
-
-VOLUME /run /tmp
 
 # Setup ansible user
 RUN useradd ansible -s /bin/bash
@@ -32,7 +18,7 @@ RUN mkdir -p /etc/sudoers.d/
 RUN chmod 0700 /home/ansible/.ssh/
 COPY ssh_config /home/ansible/.ssh/config
 
-### This is just for testing purposes. Keys never go in repos - even if you .gitignore them!!! ###
+### This is just for testing purposes. Keys never go in repos!!! ###
 # ---------------------------------------------------------------------------------------------- #
 COPY ansiblepriv /home/ansible/.ssh/id_rsa
 COPY ansiblepriv.pub /home/ansible/.ssh/id_rsa.pub
@@ -62,7 +48,4 @@ COPY hosts /etc/ansible/
 COPY /playbooks/ /etc/ansible/playbooks/
 
 # EXPOSE 22
-RUN systemctl enable sshd.service
-CMD ["/usr/bin/init"]
-
-# ENTRYPOINT ["/usr/sbin/sshd", "-D"]
+ENTRYPOINT ["/usr/sbin/sshd", "-D"]
