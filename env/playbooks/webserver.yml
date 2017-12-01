@@ -16,3 +16,7 @@
            - mod-wsgi  # interface to python stack
            - python-pip
            - python-virtualenv
+       - name: ensure apache has started
+         service: name=httpd state=started enabled=yes
+         # enabled=yes means whenever box comes up, start the service. state=started means start service immediately
+         # so basically start service immediately and restart the service upon bootup/reboots

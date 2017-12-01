@@ -3,6 +3,10 @@
 
 #### Internal Demonstration of Ansible using Docker-Compose for the environment  
 
+This is a quick infrastructure deployment (using containers) to demonstrate how to use ansible. In the real world you wouldn't use Ansible with containers as **containers are immutable**. 
+
+**lots of tweaks to get sshd and init running in this container**
+
 * Generate local ssh keypair for Ansible User:
 
     ```bash
