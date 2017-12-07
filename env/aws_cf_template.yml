@@ -1,0 +1,305 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description: >
+    This CF Template spins up a full VPC with two public and private subnets. The public subnets use an Internet Gateway while the private subnets use their own individual
+    Nat Gateways. A Bastion Host EC2 instance is created (via an ASG) in the PublicSubnet1 subnet. All access to resources in the Private Subnets must be done through the
+    Bastion Host. The Bastion Host SSH key is specified when you first run the template. SSH is restricted to the main office. Update the template to add other IP Addresses
+    to the SecurityGroupIngress Array.
+
+
+Parameters:
+
+    EnvironmentName:
+        Description: Please enter a descriptive name for your VPC. Spaces are allowed.
+        Type: String
+
+    VpcCIDR: 
+        Description: Please enter the IP range (CIDR notation) for this VPC
+        Type: String
+        Default: 10.192.0.0/16
+
+    PublicSubnet1CIDR:
+        Description: Please enter the IP range (CIDR notation) for the public subnet in the first Availability Zone
+        Type: String
+        Default: 10.192.10.0/24
+
+    PublicSubnet2CIDR:
+        Description: Please enter the IP range (CIDR notation) for the public subnet in the second Availability Zone
+        Type: String
+        Default: 10.192.11.0/24
+
+    PrivateSubnet1CIDR:
+        Description: Please enter the IP range (CIDR notation) for the private subnet in the first Availability Zone
+        Type: String
+        Default: 10.192.20.0/24
+
+    PrivateSubnet2CIDR:
+        Description: Please enter the IP range (CIDR notation) for the private subnet in the second Availability Zone
+        Type: String
+        Default: 10.192.21.0/24
+
+    KeyName:
+        Description: Please enter the name of the EC2 Key Pair you will be using for the EC2 instances
+        Type: String
+
+Resources:
+
+    VPC: 
+        Type: AWS::EC2::VPC
+        Properties:
+            CidrBlock: !Ref VpcCIDR  # Address space for VPC
+            EnableDnsSupport: true
+            EnableDnsHostnames: true
+            InstanceTenancy: default
+            Tags: 
+                - Key: Name 
+                  Value: !Ref EnvironmentName
+
+    InternetGateway:  # only one IGW per VPC
+        Type: AWS::EC2::InternetGateway
+        Properties:
+            Tags:
+                - Key: Name
+                  Value: !Ref EnvironmentName
+
+    InternetGatewayAttachment:  # Attaching IGW to our VPC
+        Type: AWS::EC2::VPCGatewayAttachment
+        Properties:
+            InternetGatewayId: !Ref InternetGateway
+            VpcId: !Ref VPC
+
+    PublicSubnet1: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            AvailabilityZone: !Select [ 0, !GetAZs ]  # Gets AZ from index position 0
+            CidrBlock: !Ref PublicSubnet1CIDR
+            MapPublicIpOnLaunch: true  # Instances launched in this subnet receive a public ip address
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
+
+    PublicSubnet2: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            AvailabilityZone: !Select [ 1, !GetAZs ]  # Gets AZ from index position 1
+            CidrBlock: !Ref PublicSubnet2CIDR
+            MapPublicIpOnLaunch: true  # Instances launched in this subnet receive a public ip address
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
+
+    PrivateSubnet1: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            AvailabilityZone: !Select [ 0, !GetAZs ]
+            CidrBlock: !Ref PrivateSubnet1CIDR
+            MapPublicIpOnLaunch: false
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
+
+    PrivateSubnet2: 
+        Type: AWS::EC2::Subnet
+        Properties:
+            VpcId: !Ref VPC
+            AvailabilityZone: !Select [ 1, !GetAZs ]
+            CidrBlock: !Ref PrivateSubnet2CIDR
+            MapPublicIpOnLaunch: false
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${EnvironmentName} Private Subnet (AZ2)
+
+    NatGateway1EIP:
+        Type: AWS::EC2::EIP
+        DependsOn: InternetGatewayAttachment
+        Properties: 
+            Domain: vpc
+
+    NatGateway2EIP:
+        Type: AWS::EC2::EIP
+        DependsOn: InternetGatewayAttachment
+        Properties:
+            Domain: vpc
+
+    NatGateway1:  # For Private Subnet 1
+        Type: AWS::EC2::NatGateway
+        Properties: 
+            AllocationId: !GetAtt NatGateway1EIP.AllocationId
+            SubnetId: !Ref PublicSubnet1
+
+    NatGateway2:  # for Private Subnet 2
+        Type: AWS::EC2::NatGateway
+        Properties:
+            AllocationId: !GetAtt NatGateway2EIP.AllocationId
+            SubnetId: !Ref PublicSubnet2
+
+    PublicRouteTable:  # Creating Route Table for Public Subnets
+        Type: AWS::EC2::RouteTable
+        Properties: 
+            VpcId: !Ref VPC
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${EnvironmentName} Public Routes
+
+    DefaultPublicRoute:  # Creating Default Route in the Public Route Table
+        Type: AWS::EC2::Route
+        DependsOn: InternetGatewayAttachment  # IGW must be created first before this resource is created
+        Properties: 
+            RouteTableId: !Ref PublicRouteTable
+            DestinationCidrBlock: 0.0.0.0/0
+            GatewayId: !Ref InternetGateway
+
+    PublicSubnet1RouteTableAssociation:  # Associate Public Route Table with PublicSubnet1
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId: !Ref PublicRouteTable
+            SubnetId: !Ref PublicSubnet1
+
+    PublicSubnet2RouteTableAssociation:  # Associate Public Route Table with PublicSubnet1
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId: !Ref PublicRouteTable
+            SubnetId: !Ref PublicSubnet2
+
+    PrivateRouteTable1:  # Creating Private Route table for PrivateSubnet1. Uses different Nat Gateway than PrivateSubnet2
+        Type: AWS::EC2::RouteTable
+        Properties: 
+            VpcId: !Ref VPC
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${EnvironmentName} Private Routes (AZ1)
+
+    DefaultPrivateRoute1:  # Default Gateway for PrivateSubnet1 using NatGateway1 for default route
+        Type: AWS::EC2::Route
+        Properties:
+            RouteTableId: !Ref PrivateRouteTable1
+            DestinationCidrBlock: 0.0.0.0/0
+            NatGatewayId: !Ref NatGateway1
+
+    PrivateSubnet1RouteTableAssociation:  # Associate PrivateRouteTable1 with PrivateSubnet1
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId: !Ref PrivateRouteTable1
+            SubnetId: !Ref PrivateSubnet1
+
+    PrivateRouteTable2:  # Creating Private Route table for PrivateSubnet2. Uses different Nat Gateway than PrivateSubnet1
+        Type: AWS::EC2::RouteTable
+        Properties: 
+            VpcId: !Ref VPC
+            Tags: 
+                - Key: Name 
+                  Value: !Sub ${EnvironmentName} Private Routes (AZ2)
+
+    DefaultPrivateRoute2:  # Default Gateway for Private Subnet 2 using NatGateway2 for default route
+        Type: AWS::EC2::Route
+        Properties:
+            RouteTableId: !Ref PrivateRouteTable2
+            DestinationCidrBlock: 0.0.0.0/0
+            NatGatewayId: !Ref NatGateway2
+
+    PrivateSubnet2RouteTableAssociation:  # Associate PrivateRouteTable2 with PrivateSubnet2
+        Type: AWS::EC2::SubnetRouteTableAssociation
+        Properties:
+            RouteTableId: !Ref PrivateRouteTable2
+            SubnetId: !Ref PrivateSubnet2
+
+    BastionHostSecurityGroup:  # Allowing Specific addresses ssh access to Bastion Host
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Allow SSH to Bastion Host
+            VpcId: !Ref VPC
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: '22'
+                  ToPort: '22'
+                  CidrIp: 71.42.237.146/32
+                - IpProtocol: tcp
+                  FromPort: '22'
+                  ToPort: '22'
+                  CidrIp: 10.10.10.10/32
+            SecurityGroupEgress:
+                - IpProtocol: -1
+                  CidrIp: 0.0.0.0/0
+            Tags:
+                - Key: Name
+                  Value: !Sub ${EnvironmentName} Bastion Host Security Group
+
+    PrivateSubnet1and2SSHSecurityGroup:
+        Type: AWS::EC2::SecurityGroup
+        Properties:
+            GroupDescription: Allow SSH from Bastion Host
+            VpcId: !Ref VPC
+            SecurityGroupIngress:
+                - IpProtocol: tcp
+                  FromPort: '22'
+                  ToPort: '22'
+                  SourceSecurityGroupId:
+                        Fn::GetAtt:
+                          - BastionHostSecurityGroup  # only allow SSH access from BastionHost
+                          - GroupId
+            SecurityGroupEgress:
+                - IpProtocol: -1
+                  CidrIp: 0.0.0.0/0
+            Tags:
+                - Key: Name
+                  Value: PrivateSubnet1 and PrivateSubnet2 SSH Security Group
+
+    BastionHostLaunchConfig:  # Launch Configuration for Bastion Host EC2 instance
+        Type: "AWS::AutoScaling::LaunchConfiguration"
+        Properties:
+            AssociatePublicIpAddress: true
+            ImageId: ami-15e9c770 # Amazon Linux in us-east-2
+            InstanceMonitoring: false
+            InstanceType: t2.micro
+            KeyName: !Ref KeyName  # Uses the KeyName entered in the Parameters Section. Note this key must be created beforehand. 
+            PlacementTenancy: default
+            SecurityGroups:
+                - Ref: BastionHostSecurityGroup
+
+    BastionHostScalingGroup:  # ASG to launch and maintain at least 1 instance
+        Type: AWS::AutoScaling::AutoScalingGroup
+        Properties:
+            LaunchConfigurationName:
+                Ref: BastionHostLaunchConfig
+            MinSize: '1'
+            MaxSize: '1'
+            VPCZoneIdentifier:
+                - Ref: PublicSubnet1
+            Tags:
+                - Key: Name
+                  Value: Bastion Host
+                  PropagateAtLaunch: true
+
+Outputs: 
+
+    VPC: 
+        Description: A reference to the created VPC
+        Value: !Ref VPC
+
+    PublicSubnets:
+        Description: A list of the public subnets
+        Value: !Join [ ",", [ !Ref PublicSubnet1, !Ref PublicSubnet2 ]]
+
+    PrivateSubnets:
+        Description: A list of the private subnets
+        Value: !Join [ ",", [ !Ref PrivateSubnet1, !Ref PrivateSubnet2 ]]
+
+    PublicSubnet1:
+        Description: A reference to the public subnet in the 1st Availability Zone
+        Value: !Ref PublicSubnet1
+
+    PublicSubnet2: 
+        Description: A reference to the public subnet in the 2nd Availability Zone
+        Value: !Ref PublicSubnet2
+
+    PrivateSubnet1:
+        Description: A reference to the private subnet in the 1st Availability Zone
+        Value: !Ref PrivateSubnet1
+
+    PrivateSubnet2: 
+        Description: A reference to the private subnet in the 2nd Availability Zone
+        Value: !Ref PrivateSubnet2
