@@ -1,4 +1,10 @@
 ---
+
+# To Do
+# ELB??, auto host update, deploy Ansible container into AWS, SG just for me to shell into Ansible in Priv, 
+# Database in priv
+
+
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >
@@ -40,7 +46,7 @@ Parameters:
         Default: 10.192.21.0/24
 
     KeyName:
-        Description: Please enter the name of the EC2 Key Pair you will be using for the EC2 instances
+        Description: Please enter the name of the EC2 Key Pair you will be using for SSH access to your EC2 instances
         Type: String
 
 Resources:
@@ -273,6 +279,27 @@ Resources:
                 - Key: Name
                   Value: Bastion Host
                   PropagateAtLaunch: true
+
+    AnsibleMaster:  # non ASG instance to deploy Ansible Master Container on
+        Type: AWS::EC2::Instance
+        Properties:
+            InstanceType: t2.small
+            ImageId: ami-15e9c770
+            KeyName: !Ref KeyName
+            SubnetId: !Ref PublicSubnet1
+            SecurityGroupIds: [!Ref 'BastionHostSecurityGroup']
+            #SecurityGroups:
+            #- !Ref BastionHostSecurityGroup
+            AvailabilityZone: us-east-2a
+            BlockDeviceMappings:
+            -
+                DeviceName: /dev/xvda  # for Amazon Linux AMIs
+                # DeviceName: /dev/sda1  # for centos or ubuntu AMIs
+                Ebs:
+                    VolumeSize: 25
+            Tags:
+                - Key: Name
+                  Value: Ansible Master
 
 Outputs: 
 
