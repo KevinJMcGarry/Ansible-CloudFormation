@@ -75,7 +75,7 @@ Resources:
             InternetGatewayId: !Ref InternetGateway
             VpcId: !Ref VPC
 
-    PublicSubnet1: 
+    PublicSubnet1:  # created in AZ us-east-2a
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
@@ -86,7 +86,7 @@ Resources:
                 - Key: Name 
                   Value: !Sub ${EnvironmentName} Public Subnet (AZ1)
 
-    PublicSubnet2: 
+    PublicSubnet2:  # created in AZ us-east-2b
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
@@ -97,7 +97,7 @@ Resources:
                 - Key: Name 
                   Value: !Sub ${EnvironmentName} Public Subnet (AZ2)
 
-    PrivateSubnet1: 
+    PrivateSubnet1:  # AZ us-east-2a
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
@@ -108,7 +108,7 @@ Resources:
                 - Key: Name 
                   Value: !Sub ${EnvironmentName} Private Subnet (AZ1)
 
-    PrivateSubnet2: 
+    PrivateSubnet2:  # AZ us-east-2b
         Type: AWS::EC2::Subnet
         Properties:
             VpcId: !Ref VPC
@@ -226,7 +226,15 @@ Resources:
                 - IpProtocol: tcp
                   FromPort: '22'
                   ToPort: '22'
-                  CidrIp: 10.10.10.10/32
+                  CidrIp: 10.10.10.10/32  # other public addresses. Change dummy internal to correct public ip.
+                - IpProtocol: tcp
+                  FromPort: '22'
+                  ToPort: '22'
+                  CidrIp: 10.192.10.0/24  # allow Ansible Host subnet ability to ssh into App01 subnet Hosts
+                  # SourceSecurityGroupId:  # had to comment out do to CF 'Circular Dependency error'
+                  #       Fn::GetAtt:
+                  #         - BastionHostSecurityGroup  # allow SSH access from BastionHostSG Members to other BastionHostSG Members
+                  #         - GroupId
             SecurityGroupEgress:
                 - IpProtocol: -1
                   CidrIp: 0.0.0.0/0
@@ -245,7 +253,7 @@ Resources:
                   ToPort: '22'
                   SourceSecurityGroupId:
                         Fn::GetAtt:
-                          - BastionHostSecurityGroup  # only allow SSH access from BastionHost
+                          - BastionHostSecurityGroup  # allow SSH access from BastionHostSG Members
                           - GroupId
             SecurityGroupEgress:
                 - IpProtocol: -1
@@ -280,7 +288,7 @@ Resources:
                   Value: Bastion Host
                   PropagateAtLaunch: true
 
-    AnsibleMaster:  # non ASG instance to deploy Ansible Master Container on
+    AnsibleMaster:  # non ASG instance to deploy Ansible Master Container onto
         Type: AWS::EC2::Instance
         Properties:
             InstanceType: t2.small
@@ -300,6 +308,36 @@ Resources:
             Tags:
                 - Key: Name
                   Value: Ansible Master
+
+    App01:  # non ASG instance to deploy Ansible Master Container onto
+        Type: AWS::EC2::Instance
+        Properties:
+            InstanceType: t2.micro
+            ImageId: ami-15e9c770
+            KeyName: !Ref KeyName
+            SubnetId: !Ref PublicSubnet2
+            SecurityGroupIds: [!Ref 'BastionHostSecurityGroup']
+            #SecurityGroups:
+            #- !Ref BastionHostSecurityGroup
+            AvailabilityZone: us-east-2b
+            Tags:
+                - Key: Name
+                  Value: Ansible Application
+
+    DB01:  # non ASG instance to deploy Ansible Master Container onto
+        Type: AWS::EC2::Instance
+        Properties:
+            InstanceType: t2.micro
+            ImageId: ami-15e9c770
+            KeyName: !Ref KeyName
+            SubnetId: !Ref PrivateSubnet1
+            SecurityGroupIds: [!Ref 'PrivateSubnet1and2SSHSecurityGroup']
+            #SecurityGroups:
+            #- !Ref BastionHostSecurityGroup
+            AvailabilityZone: us-east-2a
+            Tags:
+                - Key: Name
+                  Value: Ansible Database
 
 Outputs: 
 
