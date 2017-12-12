@@ -20,9 +20,9 @@ COPY ssh_config /home/ansible/.ssh/config
 
 ### This is just for testing purposes. Keys never go in repos!!! ###
 # ---------------------------------------------------------------------------------------------- #
-COPY ansiblepriv /home/ansible/.ssh/id_rsa
-COPY ansiblepriv.pub /home/ansible/.ssh/id_rsa.pub
-COPY ansiblepriv.pub /home/ansible/.ssh/authorized_keys
+# COPY ansiblepriv /home/ansible/.ssh/id_rsa
+# COPY ansiblepriv.pub /home/ansible/.ssh/id_rsa.pub
+# COPY ansiblepriv.pub /home/ansible/.ssh/authorized_keys
 
 RUN chown -R ansible:ansible /home/ansible/
 RUN echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ansible

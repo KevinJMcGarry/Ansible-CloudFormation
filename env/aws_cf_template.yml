@@ -1,10 +1,5 @@
 ---
 
-# To Do
-# ELB??, auto host update, deploy Ansible container into AWS, SG just for me to shell into Ansible in Priv, 
-# Database in priv
-
-
 AWSTemplateFormatVersion: "2010-09-09"
 
 Description: >
@@ -266,7 +261,7 @@ Resources:
         Type: "AWS::AutoScaling::LaunchConfiguration"
         Properties:
             AssociatePublicIpAddress: true
-            ImageId: ami-15e9c770 # Amazon Linux in us-east-2
+            ImageId: ami-9cbf9bf9 # Centos in us-east-2
             InstanceMonitoring: false
             InstanceType: t2.micro
             KeyName: !Ref KeyName  # Uses the KeyName entered in the Parameters Section. Note this key must be created beforehand. 
@@ -292,17 +287,16 @@ Resources:
         Type: AWS::EC2::Instance
         Properties:
             InstanceType: t2.small
-            ImageId: ami-15e9c770
+            ImageId: ami-9cbf9bf9
             KeyName: !Ref KeyName
             SubnetId: !Ref PublicSubnet1
             SecurityGroupIds: [!Ref 'BastionHostSecurityGroup']
-            #SecurityGroups:
-            #- !Ref BastionHostSecurityGroup
+            IamInstanceProfile: !Ref AnsibleIAMInstanceProfile
             AvailabilityZone: us-east-2a
             BlockDeviceMappings:
             -
-                DeviceName: /dev/xvda  # for Amazon Linux AMIs
-                # DeviceName: /dev/sda1  # for centos or ubuntu AMIs
+                # DeviceName: /dev/xvda  # for Amazon Linux AMIs
+                DeviceName: /dev/sda1  # for centos or ubuntu AMIs
                 Ebs:
                     VolumeSize: 25
             Tags:
@@ -313,7 +307,7 @@ Resources:
         Type: AWS::EC2::Instance
         Properties:
             InstanceType: t2.micro
-            ImageId: ami-15e9c770
+            ImageId: ami-9cbf9bf9
             KeyName: !Ref KeyName
             SubnetId: !Ref PublicSubnet2
             SecurityGroupIds: [!Ref 'BastionHostSecurityGroup']
@@ -328,7 +322,7 @@ Resources:
         Type: AWS::EC2::Instance
         Properties:
             InstanceType: t2.micro
-            ImageId: ami-15e9c770
+            ImageId: ami-9cbf9bf9
             KeyName: !Ref KeyName
             SubnetId: !Ref PrivateSubnet1
             SecurityGroupIds: [!Ref 'PrivateSubnet1and2SSHSecurityGroup']
@@ -338,6 +332,30 @@ Resources:
             Tags:
                 - Key: Name
                   Value: Ansible Database
+
+    AnsibleIAMInstanceProfile:
+        Type: "AWS::IAM::InstanceProfile"
+        Properties:
+            Path: "/"
+            Roles:
+                -
+                  Ref: "AnsibleIAMRole"
+
+    AnsibleIAMRole:  # use pre-created IAM Role/Policy for Ansible to have the authority to query AWS to auto update Inventory
+        Type: "AWS::IAM::Role"
+        Properties:
+            Path: "/"
+            ManagedPolicyArns:
+                - "arn:aws:iam::148069999550:policy/AnsibleAccess"  # the policy being used
+            AssumeRolePolicyDocument:
+                Version: '2012-10-17'
+                Statement:
+                    - Effect: Allow
+                      Principal:
+                        Service:
+                        - ec2.amazonaws.com
+                      Action:
+                      - sts:AssumeRole
 
 Outputs: 
 

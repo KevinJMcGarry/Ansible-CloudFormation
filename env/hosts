@@ -2,11 +2,10 @@
 lb01
 
 [webservers]
-app01
-app02
+ip-10-192-11-47.us-east-2.compute.internal
 
 [databases]
-db01
+ip-10-192-20-66.us-east-2.compute.internal
 
 [control]
-control ansible_connection=local
+ip-10-192-10-29.us-east-2.compute.internal ansible_connection=local
