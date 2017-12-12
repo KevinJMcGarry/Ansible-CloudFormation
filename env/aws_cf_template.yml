@@ -257,31 +257,31 @@ Resources:
                 - Key: Name
                   Value: PrivateSubnet1 and PrivateSubnet2 SSH Security Group
 
-    BastionHostLaunchConfig:  # Launch Configuration for Bastion Host EC2 instance
-        Type: "AWS::AutoScaling::LaunchConfiguration"
-        Properties:
-            AssociatePublicIpAddress: true
-            ImageId: ami-9cbf9bf9 # Centos in us-east-2
-            InstanceMonitoring: false
-            InstanceType: t2.micro
-            KeyName: !Ref KeyName  # Uses the KeyName entered in the Parameters Section. Note this key must be created beforehand. 
-            PlacementTenancy: default
-            SecurityGroups:
-                - Ref: BastionHostSecurityGroup
+    # BastionHostLaunchConfig:  # Launch Configuration for Bastion Host EC2 instance
+    #     Type: "AWS::AutoScaling::LaunchConfiguration"
+    #     Properties:
+    #         AssociatePublicIpAddress: true
+    #         ImageId: ami-9cbf9bf9 # Centos in us-east-2
+    #         InstanceMonitoring: false
+    #         InstanceType: t2.micro
+    #         KeyName: !Ref KeyName  # Uses the KeyName entered in the Parameters Section. Note this key must be created beforehand. 
+    #         PlacementTenancy: default
+    #         SecurityGroups:
+    #             - Ref: BastionHostSecurityGroup
 
-    BastionHostScalingGroup:  # ASG to launch and maintain at least 1 instance
-        Type: AWS::AutoScaling::AutoScalingGroup
-        Properties:
-            LaunchConfigurationName:
-                Ref: BastionHostLaunchConfig
-            MinSize: '1'
-            MaxSize: '1'
-            VPCZoneIdentifier:
-                - Ref: PublicSubnet1
-            Tags:
-                - Key: Name
-                  Value: Bastion Host
-                  PropagateAtLaunch: true
+    # BastionHostScalingGroup:  # ASG to launch and maintain at least 1 instance
+    #     Type: AWS::AutoScaling::AutoScalingGroup
+    #     Properties:
+    #         LaunchConfigurationName:
+    #             Ref: BastionHostLaunchConfig
+    #         MinSize: '1'
+    #         MaxSize: '1'
+    #         VPCZoneIdentifier:
+    #             - Ref: PublicSubnet1
+    #         Tags:
+    #             - Key: Name
+    #               Value: Bastion Host
+    #               PropagateAtLaunch: true
 
     AnsibleMaster:  # non ASG instance to deploy Ansible Master Container onto
         Type: AWS::EC2::Instance
