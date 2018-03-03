@@ -1,9 +1,3 @@
-# "ported" by Adam Miller <maxamillion@fedoraproject.org> from
-#   https://github.com/fedora-cloud/Fedora-Dockerfiles
-#
-# Originally written for Fedora-Dockerfiles by
-#   scollier <scollier@redhat.com>
-
 FROM centos:latest
 MAINTAINER Kevin McGarry <kevinjmcgarry@gmail.com>
 
@@ -24,11 +18,14 @@ COPY ssh_config /home/ansible/.ssh/config
 # COPY ansiblepriv.pub /home/ansible/.ssh/id_rsa.pub
 # COPY ansiblepriv.pub /home/ansible/.ssh/authorized_keys
 
+ARG SSH_PUB_KEY
+RUN echo "${SSH_PUB_KEY}" > /home/ansible/.ssh/authorized_keys
+
 RUN chown -R ansible:ansible /home/ansible/
 RUN echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ansible
 
-# generate host keys that do not exist
-RUN ssh-keygen -A 
+# generate host keys if they do not exist for root user
+RUN ssh-keygen -A
 
 # install Python3.6.x and other tools
 RUN yum install yum-utils -y && yum groupinstall development -y
@@ -39,6 +36,9 @@ RUN yum install which vim -y
 # Switch user to Ansible and install Ansible 2.4.x
 USER ansible
 RUN sudo yum install ansible -y
+
+# generate ansible user ssh keys automatically
+RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -b 4096 -N ''
 
 # Switch user back to root to run sshd
 USER root
