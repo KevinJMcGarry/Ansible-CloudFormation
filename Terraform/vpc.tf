@@ -36,6 +36,7 @@ resource "aws_subnet" "web-private-1" {
         Name = "main-private-1"
     }
 }
+
 resource "aws_subnet" "db-private-1" {
     vpc_id = "${aws_vpc.Eureka_Terraform_Test_VPC.id}"
     cidr_block = "10.250.200.0/24"

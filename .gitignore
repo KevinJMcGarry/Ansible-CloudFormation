@@ -11,6 +11,7 @@ env/ansiblepriv
 
 # Terraform Related
 /Terraform/.terraform
+/Terraform/.terraform.tfstate.lock.info
 *.tfstate
 *.tfstate.backup
 terraform.tfvars

@@ -3,6 +3,18 @@
 
 #### Internal Demonstration of Ansible using Docker-Compose for the environment  
 
+## Place holder info to update
+
+- create keypair
+- aws iam user with correct permissions and local cli profile
+- cd into Terraform
+- add more steps
+- ssh-agent
+- docker
+- note depends on (nat gateway for ec2s, ec2s for elb)
+
+
+
 This is a quick infrastructure deployment (using containers) to demonstrate how to use ansible. In the real world you wouldn't use Ansible with containers as **containers are immutable**. 
 
 **lots of tweaks to get sshd and init running in this container**

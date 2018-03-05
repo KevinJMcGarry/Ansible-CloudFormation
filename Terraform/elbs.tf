@@ -3,14 +3,15 @@ data "aws_availability_zones" "allzones" {}
 resource "aws_elb" "webservers-elb" {
   name               = "terraform-webservers-elb"
   # availability_zones = ["${data.aws_availability_zones.allzones.names}"]
-  depends_on = ["aws_subnet.web-private-1"]
-  subnets = ["${aws_subnet.web-private-1.id}"]
+  # depends_on = ["aws_subnet.web-private-1"]
+  depends_on = ["aws_instance.web01", "aws_instance.web02"]
+  subnets = ["${aws_subnet.main-public-1.id}"] # public subnet/s which will contain ELB instances
   security_groups    = ["${aws_security_group.webservers-elb-sg.id}"]
 
   listener {
     lb_port           = 80
     lb_protocol       = "http"
-    instance_port     = "80"
+    instance_port     = 80
     instance_protocol = "http"
   }
 
