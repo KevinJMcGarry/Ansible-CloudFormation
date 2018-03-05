@@ -14,8 +14,6 @@ resource "aws_vpc" "Eureka_Terraform_Test_VPC" {
 # AWS CLI command to run to find available AZs
 # aws ec2 describe-availability-zones --region us-east-2
 
-# data "aws_availability_zones" "allzones" {}
-
 # Public & Private Subnets
 resource "aws_subnet" "main-public-1" {
     vpc_id = "${aws_vpc.Eureka_Terraform_Test_VPC.id}"
