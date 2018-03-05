@@ -2,12 +2,13 @@ variable "AWS_REGION" {
   default = "us-west-2"
 }
 
+// change to the aws cli profile you would like to use
 variable "aws_profile" {
 	#default = "terraform-kmcgarry"
 	default = "eureka-terraform"
 }
 
-# AWS Linux AMI ids by Region - https://aws.amazon.com/amazon-linux-ami/
+// AWS Linux AMI ids by Region - https://aws.amazon.com/amazon-linux-ami/
 variable "AMIS" {
 	 type = "map"
 	 default = {
