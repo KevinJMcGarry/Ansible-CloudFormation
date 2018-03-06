@@ -9,15 +9,10 @@ RUN mkdir /var/run/sshd
 RUN useradd ansible -s /bin/bash
 RUN mkdir -p /home/ansible/.ssh/
 RUN mkdir -p /etc/sudoers.d/
-RUN chmod 0700 /home/ansible/.ssh/
 COPY ./Ansible/ssh_config /home/ansible/.ssh/config
+RUN chmod 0744 /home/ansible/.ssh/config
 
-### This is just for testing purposes. Keys never go in repos!!! ###
-# ---------------------------------------------------------------------------------------------- #
-# COPY ansiblepriv /home/ansible/.ssh/id_rsa
-# COPY ansiblepriv.pub /home/ansible/.ssh/id_rsa.pub
-# COPY ansiblepriv.pub /home/ansible/.ssh/authorized_keys
-
+# Argument to add local pub key for ssh access
 ARG SSH_PUB_KEY
 RUN echo "${SSH_PUB_KEY}" > /home/ansible/.ssh/authorized_keys
 
@@ -38,7 +33,7 @@ USER ansible
 RUN sudo yum install ansible -y
 
 # generate ansible user ssh keys automatically
-RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -b 4096 -N ''
+# RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -b 4096 -N ''
 
 # Switch user back to root to run sshd
 USER root

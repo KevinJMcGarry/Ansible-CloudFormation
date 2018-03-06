@@ -14,12 +14,22 @@
 - note depends on (nat gateway for ec2s, ec2s for elb)
 - output of elb and pub ip of ansible control
 - talk about putting everything in private subnet in prod using bastion host to connect to ansible control
-- git clone
-- even though public keys are public, I still like to treat them with a bit of security. copy pub key over and inject it into container at runtime via an argument
+
+- git clone (any changes to playbook should be updated through main computer and pushed to repo)
+- git pull
+- even though public keys are public, I still like to treat them with a bit of security. copy pub key over to /home/ec2-user/.ssh/ and inject it into container at runtime via an argument
 - sudo docker build -t ansiblecontrol --build-arg SSH_PUB_KEY="$(cat /home/ec2-user/.ssh/ansibletest.pub)" -f /home/ec2-user/Ansible-Terraform-Docker/Dockerfile .
 - sudo docker run -d -p 2222:22 ansiblecontrol # running on port 2222 with only access from outside
 - ssh standard port will take you to the ec2 instance
-- ssh to 2222 will take you to ansible container on ec2 instance
+- ssh to 2222 will take you to ansible container on ec2 instance, need to use ansible as the user
+- ssh -v -p 2222 -i ~/.ssh/ansibletest ansible@x.x.x.x
+
+shell into docker file and copy in aws priv and pub keys to ansible .ssh account so ansible can ssh to all other instances (which have the aws pub key already added to authorized_users)
+copy in as id_rsa and id_rsa.pub
+chmod 600 ~/.ssh/id_rsa
+
+
+
 
 
 
