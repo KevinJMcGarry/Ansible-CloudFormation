@@ -10,6 +10,7 @@ resource "aws_instance" "ansible-control" {
               sudo yum install docker -y
               sudo service docker start
               sudo chkconfig docker on
+              sudo yum install git -y
               EOF
   tags {
     Name = "TF-Ansible-Control"
@@ -37,7 +38,7 @@ resource "aws_instance" "web01" {
               sudo chkconfig docker on
               sudo docker run -d -p 80:80 nginx
               EOF
-  depends_on = ["aws_route_table_association.db-private-1-a"]
+  depends_on = ["aws_route_table_association.db-private-1-a"] # nat needs to be running and connected
   tags {
   	Name = "TF-Web01"
   	Environment = "dev"

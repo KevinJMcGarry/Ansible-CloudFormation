@@ -12,6 +12,14 @@
 - ssh-agent
 - docker
 - note depends on (nat gateway for ec2s, ec2s for elb)
+- output of elb and pub ip of ansible control
+- talk about putting everything in private subnet in prod using bastion host to connect to ansible control
+- git clone
+- even though public keys are public, I still like to treat them with a bit of security. copy pub key over and inject it into container at runtime via an argument
+- sudo docker build -t ansiblecontrol --build-arg SSH_PUB_KEY="$(cat /home/ec2-user/.ssh/ansibletest.pub)" -f /home/ec2-user/Ansible-Terraform-Docker/Dockerfile .
+- sudo docker run -d -p 2222:22 ansiblecontrol # running on port 2222 with only access from outside
+- ssh standard port will take you to the ec2 instance
+- ssh to 2222 will take you to ansible container on ec2 instance
 
 
 

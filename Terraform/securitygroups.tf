@@ -9,10 +9,18 @@ resource "aws_security_group" "ansible-control-sg" {
       protocol = "-1"
       cidr_blocks = ["0.0.0.0/0"]
   }
-
+  # ssh port for access to EC2 instance running docker
   ingress {
       from_port = 22
       to_port = 22
+      protocol = "tcp"
+      cidr_blocks = ["66.69.227.6/32", "71.42.237.146/32"]
+  }
+
+    # ssh port for access to Ansible container
+    ingress {
+      from_port = 2222
+      to_port = 2222
       protocol = "tcp"
       cidr_blocks = ["66.69.227.6/32", "71.42.237.146/32"]
   } 

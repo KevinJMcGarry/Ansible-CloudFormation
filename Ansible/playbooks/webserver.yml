@@ -1,0 +1,22 @@
+---
+  - hosts: webservers  # specify the group to target
+    become: true  # instructs ansible to use the sudo command when executing tasks
+    tasks:
+       - name: Add repository  # add EPEL repo for apache components
+         yum_repository:
+           name: epel
+           description: EPEL YUM repo
+           baseurl: https://download.fedoraproject.org/pub/epel/$releasever/$basearch/
+           gpgcheck: no  # remove GPG signature check on packages to work around error
+       - name: install apache2 and related components  # supplying the custom name for the task to run
+         yum: name={{item}} state=present update_cache=yes  #  jinja command to loop through with_items to install packages
+         with_items:  # loop to install other modules
+           - httpd
+           - mod_ssl
+           - mod-wsgi  # interface to python stack
+           - python-pip
+           - python-virtualenv
+       - name: ensure apache has started
+         service: name=httpd state=started enabled=yes
+         # enabled=yes means whenever box comes up, start the service. state=started means start service immediately
+         # so basically start service immediately and restart the service upon bootup/reboots
