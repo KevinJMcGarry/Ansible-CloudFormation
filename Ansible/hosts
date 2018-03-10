@@ -2,7 +2,7 @@
 lb01
 
 [webservers]
-ip-10-192-11-47.us-east-2.compute.internal
+ip-10-192-11-147.us-east-2.compute.internal
 
 [databases]
 ip-10-192-20-66.us-east-2.compute.internal
