@@ -1,4 +1,8 @@
-output "dynamic public ip of EC2 Instance" {
+output "dynamic public ip of Ansible Control EC2 Instance" {
+  value = "${aws_instance.ansible-control.public_ip}"
+}
+
+output "Ansible-Control Public IP (listening on Port 2222)" {
   value = "${aws_instance.ansible-control.public_ip}"
 }
 
