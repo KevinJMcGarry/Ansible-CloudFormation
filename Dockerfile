@@ -39,8 +39,8 @@ RUN sudo yum install ansible -y
 USER root
 
 # Copy hosts file
-COPY ../Ansible/hosts /etc/ansible/
-COPY ../Ansible/playbooks/ /etc/ansible/playbooks/
+COPY ./Ansible/hosts /etc/ansible/
+COPY ./Ansible/playbooks/ /etc/ansible/playbooks/
 
 # EXPOSE 22
 ENTRYPOINT ["/usr/sbin/sshd", "-D"]
