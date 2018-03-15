@@ -3,6 +3,7 @@
 FROM centos:latest
 MAINTAINER Kevin McGarry <kevinjmcgarry@gmail.com>
 
+# Install ssh server
 RUN yum -y update && yum clean all
 RUN yum -y install sudo openssh-server passwd && yum clean all
 RUN mkdir /var/run/sshd
@@ -21,10 +22,10 @@ RUN echo "${SSH_PUB_KEY}" > /home/ansible/.ssh/authorized_keys
 RUN chown -R ansible:ansible /home/ansible/
 RUN echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ansible
 
-# generate host keys if they do not exist for root user
+# Generate host keys if they do not exist for root user
 RUN ssh-keygen -A
 
-# install Python3.6.x and other tools
+# Install Python3.6.x and other tools
 RUN yum install yum-utils -y && yum groupinstall development -y
 RUN yum install https://centos7.iuscommunity.org/ius-release.rpm -y && yum install python36u -y
 RUN ln -s /usr/bin/python3.6 /usr/bin/python3
@@ -32,20 +33,12 @@ RUN yum install which vim -y
 RUN yum install python-pip -y
 RUN yum install jq -y
 
-# Switch user to Ansible and install Ansible 2.4.x
-USER ansible && RUN sudo yum install ansible -y
+# Install Ansible 2.4.x
+RUN yum install ansible -y
 
-# Install AWS CLI Tools and update Path
+# Switch user to ansible and install AWS CLI Tools
+USER ansible
 RUN pip install awscli --upgrade --user
-RUN PATH=$PATH:$HOME/bin:/root/.local/bin
-RUN source ~/.bash_profile
-
-# Pull AWS creds from SSM Parameter Store and assign to Environment Variables. Used for dynamic inventory.
-# note - exporting is a separate step as the Ansible user doesn't have access to query Parameter Store. Role assigned to EC2 instance.
-# using sed to remove the appending of double quotes around the returned value
-RUN AWS_ACCESS_KEY_ID="$(aws ssm get-parameters --names "AnsibleAccessKeyID" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value' | sed -e 's/^"//' -e 's/"$//')"
-RUN AWS_SECRET_ACCESS_KEY="$(aws ssm get-parameters --names "AnsibleSecretAccessKey" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value' | sed -e 's/^"//' -e 's/"$//')"
-RUN export AWS_ACCESS_KEY_ID && export AWS_SECRET_ACCESS_KEY
 
 # generate ansible user ssh keys automatically. Keeping this for reference.
 # RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -b 4096 -N ''

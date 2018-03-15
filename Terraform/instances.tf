@@ -14,7 +14,7 @@ resource "aws_instance" "ansible-control" {
               cd /home/ec2-user/
               git clone https://github.com/KevinJMcGarry/Ansible-Terraform-Docker.git
               cd Ansible-Terraform-Docker && sudo docker build -t ansiblecontrol:latest --build-arg SSH_PUB_KEY="$(cat ./Docker/ansiblecontrol.pub)" -f ./Dockerfile .
-              sudo docker run -d -p 2222:22 ansiblecontrol:latest
+              sudo docker run -d -p 2222:22 -e AWS_ACCESS_KEY_ID="$(aws ssm get-parameters --names "AnsibleAccessKeyID" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value' | sed -e 's/^"//' -e 's/"$//')" -e AWS_SECRET_ACCESS_KEY="$(aws ssm get-parameters --names "AnsibleSecretAccessKey" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value' | sed -e 's/^"//' -e 's/"$//')" -e PATH=$PATH:/home/ansible/.local/bin ansiblecontrol:latest
               EOF
   tags {
     Name = "TF-Ansible-Control"
