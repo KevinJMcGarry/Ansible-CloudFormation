@@ -42,8 +42,9 @@ RUN source ~/.bash_profile
 
 # Pull AWS creds from SSM Parameter Store and assign to Environment Variables. Used for dynamic inventory.
 # note - exporting is a separate step as the Ansible user doesn't have access to query Parameter Store. Role assigned to EC2 instance.
-RUN AWS_ACCESS_KEY_ID="$(aws ssm get-parameters --names "AnsibleAccessKeyID" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value')"
-RUN AWS_SECRET_ACCESS_KEY="$(aws ssm get-parameters --names "AnsibleSecretAccessKey" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value')"
+# using sed to remove the appending of double quotes around the returned value
+RUN AWS_ACCESS_KEY_ID="$(aws ssm get-parameters --names "AnsibleAccessKeyID" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value' | sed -e 's/^"//' -e 's/"$//')"
+RUN AWS_SECRET_ACCESS_KEY="$(aws ssm get-parameters --names "AnsibleSecretAccessKey" --with-decryption --region=us-west-2 | jq '.Parameters[0].Value' | sed -e 's/^"//' -e 's/"$//')"
 RUN export AWS_ACCESS_KEY_ID && export AWS_SECRET_ACCESS_KEY
 
 # generate ansible user ssh keys automatically. Keeping this for reference.
