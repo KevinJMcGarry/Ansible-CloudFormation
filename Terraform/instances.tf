@@ -13,7 +13,7 @@ resource "aws_instance" "ansible-control" {
               sudo yum install git -y
               cd /home/ec2-user/
               git clone https://github.com/KevinJMcGarry/Ansible-Terraform-Docker.git
-              cd Ansible-Terraform-Docker && sudo docker build -t ansiblecontrol:latest --build-arg SSH_PUB_KEY=$"(cat ./Docker/ansiblecontrol.pub)" -f ./Dockerfile .
+              cd Ansible-Terraform-Docker && sudo docker build -t ansiblecontrol:latest --build-arg SSH_PUB_KEY="$(cat ./Docker/ansiblecontrol.pub)" -f ./Dockerfile .
               sudo docker run -d -p 2222:22 ansiblecontrol:latest
               EOF
   tags {
