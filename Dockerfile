@@ -50,5 +50,8 @@ USER root
 COPY ./Ansible/hosts /etc/ansible/
 COPY ./Ansible/playbooks/ /etc/ansible/playbooks/
 
+# Post login shell script for AWS env vars that get lost between shell sessions
+COPY ./Docker/awsparams.sh /etc/profile.d/awsparams.sh
+
 # EXPOSE 22
 ENTRYPOINT ["/usr/sbin/sshd", "-D"]
