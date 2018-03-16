@@ -11,6 +11,7 @@ resource "aws_instance" "ansible-control" {
               sudo service docker start
               sudo chkconfig docker on
               sudo yum install git -y
+              sudo yum install jq -y
               cd /home/ec2-user/
               git clone https://github.com/KevinJMcGarry/Ansible-Terraform-Docker.git
               cd Ansible-Terraform-Docker && sudo docker build -t ansiblecontrol:latest --build-arg SSH_PUB_KEY="$(cat ./Docker/ansiblecontrol.pub)" -f ./Dockerfile .
