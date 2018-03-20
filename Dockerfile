@@ -30,25 +30,28 @@ RUN yum install yum-utils -y && yum groupinstall development -y
 RUN yum install https://centos7.iuscommunity.org/ius-release.rpm -y && yum install python36u -y
 RUN ln -s /usr/bin/python3.6 /usr/bin/python3
 RUN yum install which vim -y
-RUN yum install python-pip -y
+RUN yum install python-pip -y && pip install --upgrade pip -y
 RUN yum install jq -y
+RUN yum install wget -y
 
 # Install Ansible 2.4.x
 RUN yum install ansible -y
 
-# Switch user to ansible and install AWS CLI Tools
-USER ansible
+# Install AWS CLI Tools & SDK
 RUN pip install awscli --upgrade --user
+RUN pip install boto
 
 # generate ansible user ssh keys automatically. Keeping this for reference.
 # RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -b 4096 -N ''
 
-# Switch user back to root to run sshd
-USER root
-
 # Copy hosts file
 COPY ./Ansible/hosts /etc/ansible/
 COPY ./Ansible/playbooks/ /etc/ansible/playbooks/
+
+# Download Ansible AWS Dynamic Inventory Python script and Copy in Modified ini file
+RUN wget https://raw.github.com/ansible/ansible/devel/contrib/inventory/ec2.py -P /etc/ansible/ec2.py
+RUN chmod +x /etc/ansible/ec2.py
+RUN ./Docker/ec2.ini /etc/ansible/ec2.ini
 
 # Post login shell script for AWS env vars that get lost between shell sessions
 COPY ./Docker/awsparams.sh /etc/profile.d/awsparams.sh
