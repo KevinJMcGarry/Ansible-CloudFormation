@@ -30,7 +30,7 @@ RUN yum install yum-utils -y && yum groupinstall development -y
 RUN yum install https://centos7.iuscommunity.org/ius-release.rpm -y && yum install python36u -y
 RUN ln -s /usr/bin/python3.6 /usr/bin/python3
 RUN yum install which vim -y
-RUN yum install python-pip -y && pip install --upgrade pip -y
+RUN yum install python-pip -y && pip install --upgrade pip
 RUN yum install jq -y
 RUN yum install wget -y
 
@@ -49,9 +49,9 @@ COPY ./Ansible/hosts /etc/ansible/
 COPY ./Ansible/playbooks/ /etc/ansible/playbooks/
 
 # Download Ansible AWS Dynamic Inventory Python script and Copy in Modified ini file
-RUN wget https://raw.github.com/ansible/ansible/devel/contrib/inventory/ec2.py -P /etc/ansible/ec2.py
+RUN wget https://raw.github.com/ansible/ansible/devel/contrib/inventory/ec2.py -P /etc/ansible/
 RUN chmod +x /etc/ansible/ec2.py
-RUN ./Docker/ec2.ini /etc/ansible/ec2.ini
+COPY ./Docker/ec2.ini /etc/ansible/ec2.ini
 
 # Post login shell script for AWS env vars that get lost between shell sessions
 COPY ./Docker/awsparams.sh /etc/profile.d/awsparams.sh
