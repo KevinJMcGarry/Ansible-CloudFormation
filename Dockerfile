@@ -52,6 +52,7 @@ COPY ./Ansible/playbooks/ /etc/ansible/playbooks/
 RUN wget https://raw.github.com/ansible/ansible/devel/contrib/inventory/ec2.py -P /etc/ansible/
 RUN chmod +x /etc/ansible/ec2.py
 COPY ./Docker/ec2.ini /etc/ansible/ec2.ini
+COPY ./Docker/ansible.cfg /etc/ansible/ansible.cfg
 
 # Post login shell script for AWS env vars that get lost between shell sessions
 COPY ./Docker/awsparams.sh /etc/profile.d/awsparams.sh
