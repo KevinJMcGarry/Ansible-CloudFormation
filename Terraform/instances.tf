@@ -67,6 +67,7 @@ resource "aws_instance" "web01" {
   tags {
   	Name = "TF-Web01"
   	Environment = "dev"
+    Ansible = "Yes"
   }
 
   root_block_device {
@@ -98,6 +99,7 @@ resource "aws_instance" "web02" {
   tags {
     Name = "TF-Web02"
     Environment = "dev"
+    Ansible = "Yes"
   }
 
   root_block_device {
@@ -129,6 +131,7 @@ resource "aws_instance" "DB01" {
   tags {
     Name = "TF-DB01"
     Environment = "dev"
+    Ansible = "Yes"
   }
 
   root_block_device {
