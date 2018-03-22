@@ -88,7 +88,11 @@ resource "aws_instance" "web02" {
               sudo yum install docker -y
               sudo service docker start
               sudo chkconfig docker on
-              sudo docker run -d -p 80:80 nginx
+              sudo useradd ansible -s /bin/bash
+              sudo mkdir -p /home/ansible/.ssh/
+              sudo echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+              sudo cp /home/ec2-user/.ssh/authorized_keys /home/ansible/.ssh/authorized_keys
+              sudo chown ansible:ansible /home/ansible/.ssh/authorized_keys
               EOF
   depends_on = ["aws_route_table_association.db-private-1-a"]
   tags {
@@ -115,6 +119,11 @@ resource "aws_instance" "DB01" {
               sudo yum install docker -y
               sudo service docker start
               sudo chkconfig docker on
+              sudo useradd ansible -s /bin/bash
+              sudo mkdir -p /home/ansible/.ssh/
+              sudo echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+              sudo cp /home/ec2-user/.ssh/authorized_keys /home/ansible/.ssh/authorized_keys
+              sudo chown ansible:ansible /home/ansible/.ssh/authorized_keys
               EOF
   depends_on = ["aws_route_table_association.db-private-1-a"]
   tags {
