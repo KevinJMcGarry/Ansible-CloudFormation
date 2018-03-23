@@ -56,7 +56,7 @@ resource "aws_instance" "web01" {
               sudo yum install docker -y
               sudo service docker start
               sudo chkconfig docker on
-              sudo docker run -d -p 80:80 nginx
+              # sudo docker run -d -p 80:80 nginx  // uncomment for a quick website test
               sudo useradd ansible -s /bin/bash
               sudo mkdir -p /home/ansible/.ssh/
               sudo echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -68,6 +68,7 @@ resource "aws_instance" "web01" {
   	Name = "TF-Web01"
   	Environment = "dev"
     Ansible = "Yes"
+    Role = "WebServers"
   }
 
   root_block_device {
@@ -89,6 +90,7 @@ resource "aws_instance" "web02" {
               sudo yum install docker -y
               sudo service docker start
               sudo chkconfig docker on
+              # sudo docker run -d -p 80:80 nginx  // uncomment for a quick website test
               sudo useradd ansible -s /bin/bash
               sudo mkdir -p /home/ansible/.ssh/
               sudo echo "ansible ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
@@ -100,6 +102,7 @@ resource "aws_instance" "web02" {
     Name = "TF-Web02"
     Environment = "dev"
     Ansible = "Yes"
+    Role = "WebServers"
   }
 
   root_block_device {
@@ -132,6 +135,7 @@ resource "aws_instance" "DB01" {
     Name = "TF-DB01"
     Environment = "dev"
     Ansible = "Yes"
+    Role = "Databases"
   }
 
   root_block_device {

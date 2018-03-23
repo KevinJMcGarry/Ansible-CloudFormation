@@ -1,0 +1,6 @@
+---
+  - hosts: tag_Ansible_Yes # specify the group to target
+    become: true  # instructs ansible to use the sudo command when executing tasks
+    tasks:
+       - name: ping the hostss
+         ping:  # supplying the command to run
