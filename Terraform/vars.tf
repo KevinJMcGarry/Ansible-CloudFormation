@@ -13,7 +13,8 @@ variable "AMIS" {
 	 type = "map"
 	 default = {
 	  us-west-1 = "us-west-1"
-	  us-west-2 = "ami-f2d3638a"
+	  # us-west-2 = "ami-f2d3638a"
+	  us-west-2 = "ami-a042f4d8"
 	  us-east-1 = "us-east-1"
 	  us-east-2 = "ami-f63b1193"
      }
