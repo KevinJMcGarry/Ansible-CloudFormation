@@ -1,13 +1,13 @@
 ---
-  - hosts: tag_Role_WebServers  # specify the group to target
+  - hosts: tag_Role_WebServers  # specify the group to target using EC2 Tags
     become: true  # instructs ansible to use the sudo command when executing tasks
     tasks:
-       - name: Add repository  # add EPEL repo for apache components
-         yum_repository:
-           name: epel
-           description: EPEL YUM repo
-           baseurl: https://dl.fedoraproject.org/pub/epel/7/x86_64/repodata/
-           gpgcheck: no  # remove GPG signature check on packages to work around error
+       #- name: Add repository  # add EPEL repo for apache components if running on a centos system
+       #  yum_repository:
+       #    name: epel
+       #    description: EPEL YUM repo
+       #    baseurl: https://dl.fedoraproject.org/pub/epel/7/x86_64/repodata/
+       #    gpgcheck: no  # remove GPG signature check on packages to work around error
        - name: install httpd/apache2 and related components  # supplying the custom name for the task to run
          yum: name={{item}} state=present update_cache=yes  #  jinja command to loop through with_items to install packages
               # update_cache updates the repo cache before installing software

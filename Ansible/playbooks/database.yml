@@ -1,5 +1,5 @@
 ---
-  - hosts: databases  # specify the group to target
+  - hosts: tag_Role_Databases  # specify the group to target using EC2 Tags
     become: true  # instructs ansible to use the sudo command when executing tasks
     tasks:
        - name: install mysql-server  # supplying the custom name for the task to run
