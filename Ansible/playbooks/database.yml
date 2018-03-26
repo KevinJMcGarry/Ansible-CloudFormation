@@ -2,12 +2,19 @@
   - hosts: tag_Role_Databases  # specify the group to target using EC2 Tags
     become: true  # instructs ansible to use the sudo command when executing tasks
     tasks:
-       - name: install mysql-server  # supplying the custom name for the task to run
-         yum: name=mariadb-server state=present update_cache=yes  # http://docs.ansible.com/ansible/latest/yum_module.html
+       - name: Add repository  # add EPEL repo for apache components if running on a centos system
+         yum_repository:
+           name: MariaDB
+           description: MariaDB YUM repo
+           baseurl: http://yum.mariadb.org/5.5/centos6-amd64/
+           gpgcheck: no  # remove GPG signature check on packages to work around error
+       - name: install MariaDB-server  # supplying the custom name for the task to run
+         yum: name={{item}} state=present update_cache=yes  # http://docs.ansible.com/ansible/latest/yum_module.html
          # state is important as the option you choose will dictate if the package is upgraded when new version released
          with_items:
-           mariadb  # client tool
-       - name: ensure mysql has started
-         service: name=mariadb-server state=started enabled=yes
+           - MariaDB-server
+           - MariaDB-client  # client tool
+       - name: ensure mysql-server has started
+         service: name=mysql state=started enabled=yes
          # enabled=yes means whenever box comes up, start the service. state=started means start service immediately
          # so basically start service immediately and restart the service upon bootup/reboots

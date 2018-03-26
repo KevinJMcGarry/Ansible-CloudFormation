@@ -82,11 +82,12 @@ resource "aws_security_group" "database-servers-sg" {
       cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # allow mysql access from webservers
   ingress {
-      from_port = 27017
-      to_port = 27017
+      from_port = 3306
+      to_port = 3306
       protocol = "tcp"
-      cidr_blocks = ["66.69.227.6/32", "71.42.237.146/32"]
+      cidr_blocks = ["${aws_security_group.web-servers-sg.id}"]
   } 
 
   # allow ssh access from Ansible-Control System
