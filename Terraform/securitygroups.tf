@@ -87,7 +87,7 @@ resource "aws_security_group" "database-servers-sg" {
       from_port = 3306
       to_port = 3306
       protocol = "tcp"
-      cidr_blocks = ["${aws_security_group.web-servers-sg.id}"]
+      security_groups = ["${aws_security_group.web-servers-sg.id}"]
   } 
 
   # allow ssh access from Ansible-Control System
