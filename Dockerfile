@@ -44,9 +44,10 @@ RUN pip install boto
 # generate ansible user ssh keys automatically. Keeping this for reference.
 # RUN ssh-keygen -f $HOME/.ssh/id_rsa -t rsa -b 4096 -N ''
 
-# Copy hosts file
+# Copy Ansible related files
 COPY ./Ansible/hosts /etc/ansible/
 COPY ./Ansible/playbooks/ /etc/ansible/playbooks/
+COPY ./Ansible/demo/ /etc/ansible/demo/
 
 # Download Ansible AWS Dynamic Inventory Python script and Copy in Modified ini file
 RUN wget https://raw.github.com/ansible/ansible/devel/contrib/inventory/ec2.py -P /etc/ansible/

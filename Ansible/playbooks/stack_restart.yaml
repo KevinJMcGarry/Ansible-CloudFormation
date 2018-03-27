@@ -1,0 +1,18 @@
+---
+# Bring stack down
+- hosts: tag_Role_WebServers
+  become: true
+  tasks:
+    - service: name=httpd state=stopped
+
+# Restart mysql
+- hosts: tag_Role_Databases
+  become: true
+  tasks:
+    - service: name=mysql state=restarted
+
+# Bring stack up
+- hosts: tag_Role_WebServers
+  become: true
+  tasks:
+    - service: name=httpd state=started

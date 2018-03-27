@@ -15,10 +15,26 @@
          with_items:  # loop to install other modules
            - httpd
            - mod_ssl
-           - mod_wsgi  # interface to python stack
+           - mod_wsgi  # interface to python stack. python app will use mod_wsgi to serve requests
            - python-pip
            - python-virtualenv
        - name: ensure apache has started
          service: name=httpd state=started enabled=yes
          # enabled=yes means whenever box comes up, start the service. state=started means start service immediately
          # so basically start service immediately and restart the service upon bootup/reboots
+
+       - name: ensure mod_wsgi is enabled
+         apache2_module: state=present name=wsgi
+         notify: restart httpd  # this will trigger handler 'restart http' if there is a change with the mod_wsgi module
+
+       - name: copy demo app source
+         copy: src=../demo/app/ dest=/var/www/demo mode=0755  # dest dir will automatically be created for you
+         notify: restart httpd # triggers 'restart http' service handler if there is a change detected
+
+       - name: copy httpd virtual host config
+         copy: src=../demo/demo.conf dest=/etc/httpd/conf.d mode=755  # creating a new vhost config file to be used by apache
+         notify: restart httpd
+
+    handlers:  # service handler used to restart specific service. this has to get called via notify in order to run
+       - name: restart httpd
+         service: name=httpd state=restarted
