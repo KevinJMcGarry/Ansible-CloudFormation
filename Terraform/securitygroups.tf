@@ -115,9 +115,18 @@ resource "aws_security_group" "webservers-elb-sg" {
   name = "tf-test-web-servers-elb-sg"
   description = "security group that allows ssh and all egress traffic"
 
+  # traffic to nginx reverse proxy
   ingress {
     from_port   = 80
     to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  # traffic to python app (gunicorn)
+  ingress {
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
