@@ -17,17 +17,21 @@
            - python-pip
            - git
 
+       - name: ensure nginx has started
+         service: name=nginx state=started enabled=yes
+         # enabled=yes means whenever box comes up, start the service. state=started means start service immediately
+         # so basically start service immediately and restart the service upon bootup/reboots
+
        - name: copy demo app files to webservers  # remember - this is running from the /playbooks directory
          copy: src=../demo/app/ dest=/demo/app/ # dest dir will automatically be created for you
-         notify: restart httpd # triggers 'restart http' service handler if there is a change detected
+         notify: restart nginx # triggers 'restart http' service handler if there is a change detected
 
        - name: install python dependencies on the webservers
          pip: requirements=/demo/app/requirements.txt
-         notify: restart httpd
 
        - name: run gunicorn server on webservers (on port 8080)
          command: /usr/local/bin/gunicorn app:app -D -b 0.0.0.0:8080 --chdir=/demo/app/
 
     handlers:  # service handler used to restart specific service. this has to get called via notify in order to run
-       - name: restart httpd
-         service: name=httpd state=restarted
+       - name: restart nginx
+         service: name=nginx state=restarted
