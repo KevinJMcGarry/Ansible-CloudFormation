@@ -48,6 +48,13 @@ resource "aws_security_group" "web-servers-sg" {
       protocol = "tcp"
       # cidr_blocks = ["66.69.227.6/32", "71.42.237.146/32"]
       security_groups = ["${aws_security_group.webservers-elb-sg.id}", "${aws_security_group.ansible-control-sg.id}"]
+  }
+
+    ingress {
+      from_port = 8080
+      to_port = 8080
+      protocol = "tcp"
+      security_groups = ["${aws_security_group.webservers-elb-sg.id}", "${aws_security_group.ansible-control-sg.id}"]
   } 
 
   ingress {

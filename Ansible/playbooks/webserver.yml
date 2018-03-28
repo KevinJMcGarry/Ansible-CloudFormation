@@ -8,32 +8,25 @@
        #    description: EPEL YUM repo
        #    baseurl: https://dl.fedoraproject.org/pub/epel/7/x86_64/repodata/
        #    gpgcheck: no  # remove GPG signature check on packages to work around error
-       - name: install httpd/apache2 and related components  # supplying the custom name for the task to run
+       - name: install nginx and other packages  # supplying the custom name for the task to run
          yum: name={{item}} state=present update_cache=yes  #  jinja command to loop through with_items to install packages
               # update_cache updates the repo cache before installing software
               # can pin package to a specific version
          with_items:  # loop to install other modules
-           - httpd
-           - mod_ssl
-           - mod_wsgi  # interface to python stack. python app will use mod_wsgi to serve requests
+           - nginx
            - python-pip
-           - python-virtualenv
-       - name: ensure apache has started
-         service: name=httpd state=started enabled=yes
-         # enabled=yes means whenever box comes up, start the service. state=started means start service immediately
-         # so basically start service immediately and restart the service upon bootup/reboots
+           - git
 
-       - name: ensure mod_wsgi is enabled
-         apache2_module: state=present name=wsgi
-         notify: restart httpd  # this will trigger handler 'restart http' if there is a change with the mod_wsgi module
+       - name: install python dependencies
+         pip: requirements=../demo/app/requirements.txt
+         notify: restart httpd
 
-       - name: copy demo app source
-         copy: src=../demo/app/ dest=/var/www/demo mode=0755  # dest dir will automatically be created for you
+       - name: copy demo app source to webservers
+         copy: src=../demo/app/demo.py dest=/demo/app/demo.py # dest dir will automatically be created for you
          notify: restart httpd # triggers 'restart http' service handler if there is a change detected
 
-       - name: copy httpd virtual host config
-         copy: src=../demo/demo.conf dest=/etc/httpd/conf.d mode=755  # creating a new vhost config file to be used by apache
-         notify: restart httpd
+       - name: run gunicorn server on webservers (on port 8080)
+         command: gunicorn app:app -D -b 0.0.0.0:8080 chdir=~/demo/app/
 
     handlers:  # service handler used to restart specific service. this has to get called via notify in order to run
        - name: restart httpd
