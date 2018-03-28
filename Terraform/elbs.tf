@@ -15,6 +15,13 @@ resource "aws_elb" "webservers-elb" {
     instance_protocol = "http"
   }
 
+    listener {
+    lb_port           = 8080
+    lb_protocol       = "http"
+    instance_port     = 8080
+    instance_protocol = "http"
+  }
+
   instances                   = ["${aws_instance.web01.id}", "${aws_instance.web02.id}"]
   cross_zone_load_balancing   = true
   idle_timeout                = 400
@@ -26,7 +33,7 @@ resource "aws_elb" "webservers-elb" {
     unhealthy_threshold = 2
     timeout             = 3
     interval            = 30
-    target              = "HTTP:80/"
+    target              = "HTTP:8080/"
   }
 
   // Uncomment this section and set correct bucket name to enable access logging
